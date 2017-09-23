@@ -27,13 +27,13 @@ int main()
 
 	//checks for errors then stores into array if no errors found
 	int *array = new int[size];			//declares pointer (*array) to dynamic array of type int and size [size]
-										//created an int array of 'size' elements, new operator creates the pointer, returns an address
+							//created an int array of 'size' elements, new operator creates the pointer, returns an address
 
-										//recieve ints to fill array
-	for (int n = 0; n < size; n++)		//while n is less than 5(size of array), n++
+							//recieve ints to fill array
+	for (int n = 0; n < size; n++)			//while n is less than 5(size of array), n++
 	{
 		std::cout << "Enter a number to add to the array: ";
-		std::cin >> array[n];				//get number and fill array starting position 0
+		std::cin >> array[n];			//get number and fill array starting position 0
 
 	}
 
@@ -57,6 +57,6 @@ int main()
 		std::cout << "The median is: " << median << std::endl;
 	}
 
-	delete[] array;						//deaccocate memory to release this memory once the program is over
+	delete[] array;					//deaccocate memory to release this memory once the program is over
 	return 0;
 }
