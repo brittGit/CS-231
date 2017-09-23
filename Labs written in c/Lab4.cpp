@@ -1,4 +1,4 @@
-/*Write a program that asks user “how many positive numbers that are devisable by 6 you want to add?”. Your loop
+/*Write a program that asks user â€œhow many positive numbers that are devisable by 6 you want to add?â€. Your loop
 counter would be the user input(how many numbers they want to add). If the user enters a positive number between 1 and 100 that is devisable by 6,
 you increment your loop counter and add it to the sum. You need to decide if the positive number entered by the
 user is divisible by 6 or not. Your program should print an error message if the number is not within the range and
