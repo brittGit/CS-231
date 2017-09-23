@@ -30,7 +30,7 @@ main:
 	li $v0, 5 	#load immediate value of 5; return 5(read int) to $v0
 	syscall
 	
-	add $s3, $v0, $0 	#store user input into $s3
+	add $s3, $v0, $0 	   #store user input into $s3
 	
 	bgt $s3, $s7, errortoohigh #compares #s3 to #s7 to see if $s3 > $s7
 	ble $s3, $0, errortoolow   #compares $s3 to $0 to see if $s3 <= $0
@@ -43,12 +43,12 @@ main:
 loop: beq $s0, $s3, block 	#checks to see if user input has filled the array, counter=array size?
 
 	#prompt message to user
-	la $a0, number	#load address of number into $a0, says Enter number:
-	li $v0, 4 	#load immediate appropriate call code 4(print string) into $v0
+	la $a0, number		#load address of number into $a0, says Enter number:
+	li $v0, 4 		#load immediate appropriate call code 4(print string) into $v0
 	syscall
 
 	#save user input
-	li $v0, 5 	#load immediate value of 5(read int) to $v0, return int to $v0
+	li $v0, 5 		#load immediate value of 5(read int) to $v0, return int to $v0
 	syscall
 
 	sw $v0, 0($s1) 	#sw in $vo into RAM at address contained into $s1(array) store word from user into the register of the array
@@ -58,8 +58,8 @@ loop: beq $s0, $s3, block 	#checks to see if user input has filled the array, co
 	j loop
 block:
 	#overriding the array and counter to reset back to top
-	li $s0, 0 	#counter
-	la $s1, array 	#array
+	li $s0, 0 		#counter
+	la $s1, array 		#array
 
 	la $a0, endprompt 	#end prompt says The numbers in the array are: 
 	li $v0, 4 		#load immediate appropriate call code 4(print string) into $v0
@@ -92,14 +92,14 @@ exit:
 
 	#error section
 errortoolow:
-	la $a0, error1 	#prints error cannot be less than 1
-	li $v0, 4 	#print string
+	la $a0, error1 		#prints error cannot be less than 1
+	li $v0, 4 		#print string
 	syscall
 	j main
 	
 errortoohigh: 
-	la $a0, error2 	#prints error annot be greater than 10
-	li $v0, 4 	#print string
-	syscall
+	la $a0, error2 		#prints error annot be greater than 10
+	li $v0, 4 		#print string
+	syscall	
 	j main	
 
