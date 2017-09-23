@@ -8,7 +8,7 @@ array:     .word   0,0,0,0,0,0,0,0,0,0 #creating 10 elements each one initialize
 prompt:	 .asciiz "Enter number of elements in the array: "
 number:	 .asciiz "Enter number "
 endprompt: .asciiz "The numbers in the array in reverse order are: \n"
-space:	 .asciiz " "
+space:	 .asciiz  " "
 error1:	 .asciiz "Error cannot be less than 1\n" 
 error2:	 .asciiz "Error cannot be greater than 10\n"
 median:	 .asciiz "Median is: "
