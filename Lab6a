@@ -1,0 +1,86 @@
+#Program to utilize subroutine and convert intergers(decimals) to binary. 
+#Program should take input of an integer from user and then pass that number to BaseChange subroutine. The subroutine
+#should then calculate the binary form of that number by use of the stack and display the result to the user.
+	      .data
+inputDecimal:  .asciiz "\n Input a number in decimal form: "
+outputString1: .asciiz "The number "
+outputString2: .asciiz " in binary is: "
+errorString:   .asciiz "Error, cannot be less than 1."
+	     .text
+
+main:					
+	li $v0, 4				#$s1 = user input decimal		
+	la $a0, inputDecimal		#t0 = remainder of decimal / 2
+	syscall				#t1 = holds user input decimal for temporary counter
+					#t2 = quotent of decimal / 2
+					#t3 = 32 - counter
+	li $v0, 5				
+	syscall
+
+	add $s1, $v0, $0			#store user input decimal into $s1		
+	ble $s1, $0, error			#if error <= 0 go to error
+	
+	jal initializeBaseChange		#jump and link to initializeBaseChange
+	
+	li $v0, 10			#end program for when you return to main 
+	syscall
+	
+initializeBaseChange:
+	li $s4, 0				#$s4 = counter 
+	li $s2, 2				#$s2 = int 2 for division by 2
+	li $s3, 32			#$s3 = int 32 for 32 bit, to make sure enough 0's are added to binary
+	add $t1, $s1, $0			#store user input decimal to $t1 to use as temporary counter
+	
+baseChange: beq $t1, $0, add0s		#when userInputDecimal = 0 go to add0's
+	div $t1, $s2			#divide decimal by 2
+	mfhi $t0				#remainder of decimal / 2
+	mflo $t1				#quotent of decimal / 2
+	
+	addi $sp, $sp, -4			#move pointer so its in next position
+	sw $t0, 0($sp)			#insert $t0(remainder) into where $sp is pointing
+	add $s4, $s4, 1			#s4 = temporary counter
+	
+	j baseChange
+	
+add0s: sub $t3, $s3, $s4			#subtract 32($s3) - counter($s4), store in $t3
+	li $t5, 0				#new temporary counter
+	
+	li $v0, 4				#print string
+	la $a0, outputString1		#Prints "The number "
+	syscall
+	
+	li $v0, 1				#print integer
+	add $a0, $s1, $0			#add input decimal to $a0 then prints input decimal
+	syscall
+	
+	li $v0, 4				#print string
+	la $a0, outputString2		#prints "in binary is: "
+	syscall
+	
+#print number of 0's needed to make it 32 bit
+printZeros: beq $t5, $t3, final		#when number of zeros needed($t3) = 0($t5)
+	li $v0, 1				#print integer
+	li $a0, 0				#print 0's repeatedly, until number of zeros needed($t3) = 0
+	syscall
+	
+	add $t5, $t5, 1			#add 1 to temporary counter
+	j printZeros
+	
+final: li $t4, 0				
+output: beq $t4, $s4, exit			#($t4) is new counter, $s4 is old counter
+	li $v0, 1				#print integer
+	lw $a0, 0($sp)			#load word, whatever is in $a0 into where sp is pointing
+	syscall
+	
+	add $sp, $sp, 4			#move stack pointer to next position
+	add $t4, $t4, 1			#add one to counter
+	j output
+	
+exit:	jr $ra				#jump back to main
+
+error: 
+	li $v0, 4
+	la $a0, errorString
+	syscall
+	
+	j main
