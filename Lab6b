@@ -1,0 +1,170 @@
+#See Lab6b.txt for info on what this program should do.
+                  .data
+items:   .word 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+coupons: .word 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+enterItems: .asciiz "Please enter the number of items you are purchasing(1-20):\n"
+enterIPrice:.asciiz "Please enter price of item "
+enterCoupNum: .asciiz "Please enter the number of coupons you want to use: "
+enterCoupPrice: .asciiz "Please enter the amount of coupon "
+total:  .asciiz "Your total charge is:  "
+thank:  .asciiz "\nThank you for shopping with us!"
+colon:  .asciiz ": "
+error1: .asciiz "Error: too many items!\n"
+error2: .asciiz "Error: not enough items!\n"
+error3: .asciiz "Error: too many coupons!\n"
+error4: .asciiz "Error: coupon not acceptable!\n"
+        .text
+main:
+	li $s7, 20		#$s7 is max number of items
+	
+	li $v0, 4			#print string
+	la $a0, enterItems		#"Please enter the number of items you are purchasing(1-20):
+	syscall
+	
+	li $v0, 5			#read int
+	syscall
+	
+	add $s0, $v0, $0		#store # of items into $s0
+	
+	bgt $s0, $s7, errorHigh  	#if #ofItems is greater than 20 go to errorHigh
+	ble $s0, $0, errorLow	#if #ofItems is less than or = to 0 go to errorLow
+	
+	add $a0, $s0, $0		#store #of items into $a0 to move to fillPriceArray
+	jal fillPriceArray
+
+	add $s2, $v0, $0		#$s2 = total price of items
+	
+#get info about number of coupons
+couponNum:
+	li $v0, 4			#print string
+	la $a0, enterCoupNum	#"Please enter the number of coupons you want to use"
+	syscall
+	
+	li $v0, 5			#gets number of coupons from user
+	syscall
+	
+	add $s3, $v0, $0		#number of coupons loaded into $s3
+	bne $s3, $s0, errorTooManyCoupons	#checks to make sure they didnt try to enter too many coupons
+	
+	add $a0, $s3, $0		#add #ofCoupons to $a0 to send to fillCoupArray
+	jal fillCoupArray
+	
+	add $s4, $v0, $0		#total price of discounts
+	
+	sub $s2,$s2,$s4		#subtract coupons from items
+	
+	li $v0, 4			#print string
+	la $a0, total
+	syscall
+
+	li $v0, 1			#print integer
+	add $a0, $s2, $0
+	syscall
+
+	li $v0, 4			#print string
+	la $a0, thank		#prints Thank you for shopping
+	syscall
+
+	li $v0, 10		#final return to main ends the program
+	syscall
+
+
+fillPriceArray: add $t0, $a0, $0	#load #ofItems to $t0
+	      la $s1, items		#load item array address
+	      li $t1, 0		#counter
+	      li $t2, 0		#total
+fill: beq $t0, $t1, loopExit
+	li $v0, 4
+	la $a0, enterIPrice		#prints Please enter price of item
+	syscall
+	
+	li $v0, 1			#print number
+	add $a0, $t1, 1		#adds 1 to counter, to keep track of item
+	syscall
+
+	li $v0, 4			#print string
+	la $a0, colon		#print colon
+	syscall
+
+	li $v0, 5			#read int
+	syscall
+
+	sw $v0, 0($s1)		#store price into the array
+	
+	add $t2, $v0, $t2		#add price to total to keep track
+	add $s1, $s1, 4		#move the array position
+	add $t1, $t1, 1		#add one to counter
+
+	j fill
+loopExit: add $v0, $t2, $0		#keeps total price of items and sends back to main
+	jr $ra
+
+fillCoupArray:
+	add $t0, $a0, $0		#add amount of coupons to $t0
+	la $t8, coupons		#load coupon array
+	li $t4, 0			#coutner
+	li $t5, 0			#total
+	la $s1, items		#items array
+	li $t9, 10		#int 10 to make sure price isnt more than 10
+fillCoup:	beq $t4, $t0, loop2Exit
+	li $v0, 4		  	#print string
+	la $a0, enterCoupPrice	#"enter price of coupon"
+	syscall
+
+	li $v0, 1		#print integer
+	add $a0, $t4, 1	#print counter+1
+	syscall
+
+	li $v0, 4		#print string
+	la $a0, colon	#print colon
+	syscall
+
+	li $v0, 5		#read integer
+	syscall
+	
+	lw $t1, 0($s1)	#load item array into $t8
+	add $t6, $v0, $0	#use $t6 for temporary storage of price of coupon
+	addi $t1, $t1, -1
+
+	bgt $t6, $t1, invalidCoupon	#check to make sure coupon isnt more than coupon array 
+	bgt $t6, $t9, invalidCoupon	#check to make sure coupon $isnt more than 10
+
+	sw $t6, 0($t8)	#store the int into the array
+	add $t5, $t5, $t6
+	
+	add $t8, $t8, 4		#move array pointer
+	add $s1, $s1, 4		#move item array pointer
+	add $t4, $t4, 1		#add one to counter
+
+	
+	j fillCoup		#jump to fillCoup
+	
+loop2Exit: add $v0, $t5, $0		#send total back to $v0
+	 jr $ra			#go back to couponNum jal
+	
+
+invalidCoupon: 	li $v0, 4
+		la $a0, error4	#prints Error: "This coupon is not acceptable!"
+		syscall
+		
+		sw $0, 0($t8)	#store the int into the array
+		add $t8, $t8, 4	#add 4 to the address (coupons)
+		add $s1, $s1, 4	#add 4 to the address (items)
+		add $t4, $t4, 1	#add 1 to the counter
+
+		j fillCoup
+		
+errorHigh: 	li $v0, 4
+	 	la $a0, error1	#error 1 says: "Error: too many items!"
+		syscall
+	 	j main
+	 
+errorLow:	 	li $v0, 4
+		la $a0, error2	#error 2 says: "Error: not enough items!"
+	 	syscall
+	 	j main
+	 
+errorTooManyCoupons: li $v0, 4
+		 la $a0, error3	#error 3 says: "Error: too many coupons!"
+		 syscall
+		 j couponNum	#jump to couponNum to get new input from user on how many coupons to enter
